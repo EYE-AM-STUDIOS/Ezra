@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>In Loving Memory of Ezra Courtney</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0D1B2A;
+      color: #FFFFFF;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      padding: 20px;
+    }
+
+    header img {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      border: 5px solid #00BFFF;
+      object-fit: cover;
+    }
+
+    h1 {
+      margin-top: 15px;
+      font-size: 28px;
+      color: #FFFFFF;
+    }
+
+    p.instructions {
+      margin: 15px auto;
+      font-size: 16px;
+      max-width: 600px;
+      line-height: 1.5;
+      color: #d1e7ff;
+    }
+
+    .upload-btn {
+      display: inline-block;
+      margin: 20px auto;
+      padding: 15px 30px;
+      font-size: 18px;
+      color: #FFFFFF;
+      background-color: #00BFFF;
+      text-decoration: none;
+      border-radius: 6px;
+    }
+
+    .gallery {
+      padding: 20px;
+    }
+
+    .gallery h2 {
+      margin-bottom: 15px;
+    }
+
+    .gallery-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .gallery-grid img,
+    .gallery-grid video {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    .guestbook {
+      padding: 20px;
+      background: #1a365d;
+      margin-top: 20px;
+    }
+
+    .guestbook h2 {
+      margin-bottom: 10px;
+    }
+
+    .guestbook form {
+      margin-bottom: 20px;
+    }
+
+    .guestbook input,
+    .guestbook textarea {
+      width: 90%;
+      max-width: 400px;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 4px;
+      border: none;
+    }
+
+    .guestbook button {
+      padding: 10px 20px;
+      background: #00BFFF;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .messages {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .message {
+      background: #0D1B2A;
+      padding: 10px;
+      margin: 10px 0;
+      border-left: 3px solid #00BFFF;
+    }
+
+    footer {
+      margin-top: 40px;
+      padding: 10px;
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    @media(max-width: 600px) {
+      header img {
+        width: 150px;
+        height: 150px;
+      }
+      .gallery-grid img, .gallery-grid video {
+        width: 80px;
+        height: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="YOUR_PROFILE_PHOTO_URL_HERE" alt="Ezra Courtney">
+    <h1>In Loving Memory of Ezra Courtney</h1>
+    <p class="instructions">
+      Please share your favorite photos and short videos (under 3 minutes, less than 500MB) 
+      to help us celebrate Ezra’s life. For longer videos, please send directly via Google Drive or Dropbox link. 
+    </p>
+  </header>
+
+  <a href="YOUR_DROPBOX_FILE_REQUEST_URL" target="_blank" class="upload-btn">📤 Upload a Memory</a>
+
+  <section class="gallery">
+    <h2>Shared Memories</h2>
+    <div class="gallery-grid" id="gallery">
+      <!-- Thumbnails of uploaded photos/videos can be placed here manually, or automated later -->
+    </div>
+  </section>
+
+  <section class="guestbook">
+    <h2>Guestbook</h2>
+    <form id="guestbookForm">
+      <input type="text" id="name" placeholder="Your Name" required><br>
+      <textarea id="message" placeholder="Your Message" rows="4" required></textarea><br>
+      <button type="submit">Submit</button>
+    </form>
+
+    <div class="messages" id="messages">
+      <!-- Guestbook messages appear here -->
+    </div>
+  </section>
+
+  <footer>
+    Powered by EYE AM STUDIOS, LLC
+  </footer>
+
+  <script>
+    // Guestbook form → Google Sheets integration
+    const form = document.getElementById('guestbookForm');
+    const messagesDiv = document.getElementById('messages');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const message = document.getElementById('message').value;
+
+      // Show immediately on the page
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message');
+      messageDiv.innerHTML = `<strong>${name}</strong><p>${message}</p>`;
+      messagesDiv.prepend(messageDiv);
+
+      // Send to Google Sheets
+      fetch("https://script.google.com/macros/s/AKfycbxky_kGPxMGcOdujzU-tKUHGuKkNZJ7GQQK0jnjrShQxaWq61alhPDCDswOPEobZquO/exec", {
+        method: "POST",
+        body: JSON.stringify({ name: name, message: message })
+      }).then(res => console.log("Guestbook entry sent to Sheet"))
+        .catch(err => console.error("Error:", err));
+
+      form.reset();
+    });
+
+    // Analytics placeholder (can be upgraded to Google Analytics later)
+    console.log("Visitor accessed memorial page at", new Date(), navigator.userAgent);
+  </script>
+</body>
+</html>
