@@ -290,7 +290,7 @@
   <div class="container">
     <!-- Background Audio -->
     <audio id="backgroundAudio" loop preload="auto">
-      <source src="amazing-grace.mp3" type="audio/mpeg">
+      <source src="01 - Ezra Courtney - Amaizing Grace.mp3" type="audio/mpeg">
       Your browser does not support the audio element.
     </audio>
     
@@ -373,6 +373,7 @@
     // Debug: Check if audio element exists
     console.log('Audio element found:', audio);
     console.log('Audio toggle button found:', audioToggle);
+    console.log('Audio source:', audio ? audio.src : 'No audio element');
 
     // Ensure button is clickable
     if (audioToggle) {
@@ -388,7 +389,14 @@
         return;
       }
       
+      console.log('Audio readyState:', audio.readyState);
+      console.log('Audio networkState:', audio.networkState);
+      
       audio.volume = 0.3; // Set volume to 30% for background ambiance
+      
+      // Try to load the audio first
+      audio.load();
+      
       audio.play().then(() => {
         console.log('Audio started successfully');
         isPlaying = true;
@@ -407,6 +415,9 @@
         e.preventDefault();
         e.stopPropagation();
         console.log('Audio toggle clicked. Currently playing:', isPlaying);
+        console.log('Audio paused:', audio.paused);
+        console.log('Audio currentTime:', audio.currentTime);
+        console.log('Audio duration:', audio.duration);
         
         if (isPlaying) {
           audio.pause();
@@ -415,6 +426,9 @@
           isPlaying = false;
           console.log('Audio paused');
         } else {
+          // Try to load first
+          audio.load();
+          
           audio.play().then(() => {
             audioToggle.textContent = '🔊';
             audioToggle.title = 'Pause background music';
@@ -422,7 +436,7 @@
             console.log('Audio started after button click');
           }).catch(err => {
             console.error('Audio play failed:', err);
-            alert('Audio failed to play: ' + err.message);
+            alert('Audio failed to play: ' + err.message + '\nFile: 01 - Ezra Courtney - Amaizing Grace.mp3');
           });
         }
       });
@@ -432,8 +446,17 @@
     if (audio) {
       audio.addEventListener('loadstart', () => console.log('Audio loading started'));
       audio.addEventListener('loadeddata', () => console.log('Audio data loaded'));
-      audio.addEventListener('error', (e) => console.error('Audio error:', e));
+      audio.addEventListener('loadedmetadata', () => console.log('Audio metadata loaded, duration:', audio.duration));
+      audio.addEventListener('canplay', () => console.log('Audio can start playing'));
       audio.addEventListener('canplaythrough', () => console.log('Audio can play through'));
+      audio.addEventListener('error', (e) => {
+        console.error('Audio error:', e);
+        console.error('Audio error code:', audio.error ? audio.error.code : 'Unknown');
+        console.error('Audio error message:', audio.error ? audio.error.message : 'Unknown');
+      });
+      audio.addEventListener('stalled', () => console.log('Audio download stalled'));
+      audio.addEventListener('suspend', () => console.log('Audio download suspended'));
+      audio.addEventListener('abort', () => console.log('Audio download aborted'));
     }
 
     // Try to initialize audio when page loads
@@ -441,7 +464,7 @@
       setTimeout(() => {
         console.log('Page loaded, trying to init audio');
         initAudio();
-      }, 1000);
+      }, 2000); // Increased delay
     });
 
     // Also try to start audio on first user interaction
