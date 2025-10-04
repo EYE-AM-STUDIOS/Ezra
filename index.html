@@ -64,6 +64,12 @@
       font-weight: 300;
       letter-spacing: 1px;
     }
+    /* Hide line break on desktop */
+    @media(min-width: 769px) {
+      h1 br {
+        display: none;
+      }
+    }
     .dates {
       font-size: 16px;
       color: #8BA3C7;
@@ -232,9 +238,6 @@
       h1 {
         font-size: 26px;
         line-height: 1.2;
-      }
-      h1 br {
-        display: none;
       }
       .profile-image-container {
         width: 140px;
@@ -511,6 +514,3 @@
 
     // Simple analytics
     console.log("Memorial page viewed:", new Date().toISOString());
-  </script>
-</body>
-</html>
