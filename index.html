@@ -5,17 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>In Loving Memory of Ezra Courtney</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #0D1B2A;
+      font-family: 'Georgia', serif;
+      background: linear-gradient(135deg, #0D1B2A 0%, #1B263B 100%);
       color: #FFFFFF;
       text-align: center;
       margin: 0;
       padding: 0;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
     }
 
     header {
-      padding: 20px;
+      padding: 40px 20px;
+      animation: fadeIn 1s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+
+    }
+
+    .profile-image-container {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      margin: 0 auto;
     }
 
     header img {
@@ -24,186 +49,437 @@
       border-radius: 50%;
       border: 5px solid #00BFFF;
       object-fit: cover;
+      box-shadow: 0 8px 24px rgba(0, 191, 255, 0.3);
+      transition: transform 0.3s ease;
+    }
+
+    header img:hover {
+      transform: scale(1.05);
     }
 
     h1 {
-      margin-top: 15px;
-      font-size: 28px;
+      margin-top: 20px;
+      font-size: 32px;
       color: #FFFFFF;
+      font-weight: 300;
+      letter-spacing: 1px;
+    }
+
+    .dates {
+      font-size: 16px;
+      color: #8BA3C7;
+      margin-top: 5px;
+      font-style: italic;
     }
 
     p.instructions {
-      margin: 15px auto;
+      margin: 20px auto;
       font-size: 16px;
-      max-width: 600px;
-      line-height: 1.5;
+      max-width: 700px;
+      line-height: 1.8;
       color: #d1e7ff;
+      font-family: Arial, sans-serif;
     }
 
     .upload-btn {
       display: inline-block;
-      margin: 20px auto;
-      padding: 15px 30px;
+      margin: 30px auto 20px;
+      padding: 16px 40px;
       font-size: 18px;
       color: #FFFFFF;
-      background-color: #00BFFF;
+      background: linear-gradient(135deg, #00BFFF 0%, #0080CC 100%);
       text-decoration: none;
-      border-radius: 6px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 191, 255, 0.4);
+      transition: all 0.3s ease;
+      font-family: Arial, sans-serif;
+    }
+
+    .upload-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 191, 255, 0.6);
     }
 
     .gallery {
-      padding: 20px;
+      padding: 40px 20px;
+      background: rgba(26, 54, 93, 0.3);
+      margin: 30px 0;
+      border-radius: 12px;
     }
 
     .gallery h2 {
-      margin-bottom: 15px;
+      margin-bottom: 25px;
+      font-size: 28px;
+      font-weight: 300;
+      color: #00BFFF;
     }
 
     .gallery-grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 15px;
+      max-width: 900px;
+      margin: 0 auto;
     }
 
     .gallery-grid img,
     .gallery-grid video {
-      width: 100px;
-      height: 100px;
+      width: 100%;
+      height: 120px;
       object-fit: cover;
-      border-radius: 4px;
+      border-radius: 8px;
+      border: 2px solid rgba(0, 191, 255, 0.3);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .gallery-grid img:hover,
+    .gallery-grid video:hover {
+      transform: scale(1.05);
+      border-color: #00BFFF;
+      box-shadow: 0 4px 15px rgba(0, 191, 255, 0.5);
+    }
+
+    .gallery-placeholder {
+      color: #8BA3C7;
+      padding: 40px;
+      font-style: italic;
     }
 
     .guestbook {
-      padding: 20px;
-      background: #1a365d;
-      margin-top: 20px;
+      padding: 40px 20px;
+      background: rgba(26, 54, 93, 0.5);
+      margin-top: 30px;
+      border-radius: 12px;
     }
 
     .guestbook h2 {
-      margin-bottom: 10px;
+      margin-bottom: 25px;
+      font-size: 28px;
+      font-weight: 300;
+      color: #00BFFF;
     }
 
     .guestbook form {
-      margin-bottom: 20px;
+      margin-bottom: 30px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .guestbook input,
     .guestbook textarea {
-      width: 90%;
-      max-width: 400px;
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 4px;
-      border: none;
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 2px solid rgba(0, 191, 255, 0.3);
+      background: rgba(13, 27, 42, 0.6);
+      color: #FFFFFF;
+      font-size: 15px;
+      font-family: Arial, sans-serif;
+      transition: border-color 0.3s ease;
+    }
+
+    .guestbook input:focus,
+    .guestbook textarea:focus {
+      outline: none;
+      border-color: #00BFFF;
+    }
+
+    .guestbook input::placeholder,
+    .guestbook textarea::placeholder {
+      color: #8BA3C7;
     }
 
     .guestbook button {
-      padding: 10px 20px;
-      background: #00BFFF;
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #00BFFF 0%, #0080CC 100%);
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       color: #fff;
       font-size: 16px;
       cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .guestbook button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 191, 255, 0.5);
     }
 
     .messages {
-      max-width: 600px;
+      max-width: 700px;
       margin: 0 auto;
       text-align: left;
     }
 
     .message {
-      background: #0D1B2A;
-      padding: 10px;
-      margin: 10px 0;
-      border-left: 3px solid #00BFFF;
+      background: rgba(13, 27, 42, 0.7);
+      padding: 16px;
+      margin: 15px 0;
+      border-left: 4px solid #00BFFF;
+      border-radius: 6px;
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .message strong {
+      color: #00BFFF;
+      font-size: 16px;
+    }
+
+    .message p {
+      margin: 8px 0 0 0;
+      color: #d1e7ff;
+      line-height: 1.6;
+    }
+
+    .message-date {
+      font-size: 12px;
+      color: #8BA3C7;
+      margin-top: 8px;
+      font-style: italic;
+    }
+
+    .no-messages {
+      color: #8BA3C7;
+      font-style: italic;
+      padding: 20px;
     }
 
     footer {
-      margin-top: 40px;
-      padding: 10px;
-      font-size: 14px;
-      color: #ccc;
+      margin-top: 60px;
+      padding: 20px;
+      font-size: 13px;
+      color: #8BA3C7;
+      border-top: 1px solid rgba(139, 163, 199, 0.2);
     }
 
-    @media(max-width: 600px) {
+    .success-message {
+      background: rgba(0, 191, 255, 0.2);
+      color: #00BFFF;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 15px auto;
+      max-width: 600px;
+      display: none;
+    }
+
+    @media(max-width: 768px) {
+      h1 {
+        font-size: 26px;
+      }
+
+      .profile-image-container {
+        width: 170px;
+        height: 170px;
+      }
+
       header img {
         width: 150px;
         height: 150px;
       }
-      .gallery-grid img, .gallery-grid video {
-        width: 80px;
+
+      .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      }
+
+      .gallery-grid img,
+      .gallery-grid video {
+        height: 100px;
+      }
+
+      .upload-btn {
+        padding: 14px 30px;
+        font-size: 16px;
+      }
+    }
+
+    @media(max-width: 480px) {
+      .container {
+        padding: 10px;
+      }
+
+      .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 10px;
+      }
+
+      .gallery-grid img,
+      .gallery-grid video {
         height: 80px;
       }
     }
   </style>
 </head>
 <body>
-  <header>
-    <img src="YOUR_PROFILE_PHOTO_URL_HERE" alt="Ezra Courtney">
-    <h1>In Loving Memory of Ezra Courtney</h1>
-    <p class="instructions">
-      Please share your favorite photos and short videos (under 3 minutes, less than 500MB) 
-      to help us celebrate Ezra’s life. For longer videos, please send directly via Google Drive or Dropbox link. 
-    </p>
-  </header>
+  <div class="container">
+    <header>
+      <div class="profile-image-container">
+        <img src="https://via.placeholder.com/200/0D1B2A/00BFFF?text=Ezra" alt="Ezra Courtney">
+      </div>
+      <h1>In Loving Memory of Ezra Courtney</h1>
+      <p class="dates">Forever in Our Hearts</p>
+      <p class="instructions">
+        Please share your favorite photos and short videos (under 3 minutes, less than 500MB) 
+        to help us celebrate Ezra's life. For longer videos, please send directly via Google Drive or Dropbox link.
+      </p>
+    </header>
 
-  <a href="YOUR_DROPBOX_FILE_REQUEST_URL" target="_blank" class="upload-btn">📤 Upload a Memory</a>
+    <a href="https://www.dropbox.com/scl/fo/hvi4nw00mv5xdvnmyyc4t/AAJE5eVnOrATn7P0VQV3foI?rlkey=1l0wr9nm93cr6ykw25mtre5dy&st=cd4rez52&dl=0" class="upload-btn" id="uploadBtn" target="_blank" rel="noopener">📤 Upload a Memory</a>
 
-  <section class="gallery">
-    <h2>Shared Memories</h2>
-    <div class="gallery-grid" id="gallery">
-      <!-- Thumbnails of uploaded photos/videos can be placed here manually, or automated later -->
-    </div>
-  </section>
-
-  <section class="guestbook">
-    <h2>Guestbook</h2>
-    <form id="guestbookForm">
-      <input type="text" id="name" placeholder="Your Name" required><br>
-      <textarea id="message" placeholder="Your Message" rows="4" required></textarea><br>
-      <button type="submit">Submit</button>
+    <!-- Direct upload to S3 via Vercel API -->
+    <form id="uploadForm" enctype="multipart/form-data" style="margin: 30px auto; max-width: 400px;">
+      <input type="file" id="fileInput" required style="margin-bottom: 10px;">
+      <button type="submit" style="padding: 12px 30px; background: linear-gradient(135deg, #00BFFF 0%, #0080CC 100%); border: none; border-radius: 8px; color: #fff; font-size: 16px; cursor: pointer;">Upload a Memory</button>
     </form>
+    <div id="uploadStatus" style="margin-top:10px; color:#00BFFF;"></div>
 
-    <div class="messages" id="messages">
-      <!-- Guestbook messages appear here -->
-    </div>
-  </section>
+    <section class="gallery">
+      <h2>Shared Memories</h2>
+      <div class="gallery-grid" id="gallery">
+        <div class="gallery-placeholder">
+          Photos and videos shared by loved ones will appear here
+        </div>
+      </div>
+    </section>
 
-  <footer>
-    Powered by EYE AM STUDIOS, LLC
-  </footer>
+    <section class="guestbook">
+      <h2>Guestbook</h2>
+      <div class="success-message" id="successMessage">
+        Thank you for sharing your memory ❤️
+      </div>
+      <form id="guestbookForm">
+        <input type="text" id="name" placeholder="Your Name" required>
+        <textarea id="message" placeholder="Share a memory, thought, or message..." rows="5" required></textarea>
+        <button type="submit">Submit Message</button>
+      </form>
+
+      <div class="messages" id="messages">
+        <div class="no-messages">Be the first to share a memory</div>
+      </div>
+    </section>
+
+    <footer>
+      <p>With love and remembrance</p>
+      <p style="margin-top: 10px;">Powered by EYE AM STUDIOS, LLC</p>
+    </footer>
+  </div>
 
   <script>
-    // Guestbook form → Google Sheets integration
+    // Direct upload to S3 via Vercel API
+    document.getElementById('uploadForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const file = document.getElementById('fileInput').files[0];
+      if (!file) return;
+      const status = document.getElementById('uploadStatus');
+      status.textContent = 'Uploading...';
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: {
+            'x-filename': encodeURIComponent(file.name),
+            'content-type': file.type
+          },
+          body: file
+        });
+        if (res.ok) {
+          status.textContent = 'Upload successful!';
+        } else {
+          status.textContent = 'Upload failed. Please try again.';
+        }
+      } catch (err) {
+        status.textContent = 'Upload error: ' + err.message;
+      }
+    };
     const form = document.getElementById('guestbookForm');
     const messagesDiv = document.getElementById('messages');
+    const successMessage = document.getElementById('successMessage');
+    const uploadBtn = document.getElementById('uploadBtn');
+
+    // No longer need to alert for upload link, as it is set
+
+    // Load existing messages on page load
+    window.addEventListener('load', loadMessages);
+
+    function loadMessages() {
+      // Messages will be loaded from Google Sheets
+      // For now, showing placeholder
+    }
 
     form.addEventListener('submit', function(e) {
       e.preventDefault();
-      const name = document.getElementById('name').value;
-      const message = document.getElementById('message').value;
+      const name = document.getElementById('name').value.trim();
+      const message = document.getElementById('message').value.trim();
 
-      // Show immediately on the page
+      if (!name || !message) return;
+
+      // Remove "no messages" placeholder if it exists
+      const noMessages = messagesDiv.querySelector('.no-messages');
+      if (noMessages) {
+        noMessages.remove();
+      }
+
+      // Create message element
       const messageDiv = document.createElement('div');
       messageDiv.classList.add('message');
-      messageDiv.innerHTML = `<strong>${name}</strong><p>${message}</p>`;
+      const now = new Date().toLocaleDateString('en-US', { 
+        month: 'long', 
+        day: 'numeric', 
+        year: 'numeric' 
+      });
+      
+      messageDiv.innerHTML = `
+        <strong>${escapeHtml(name)}</strong>
+        <p>${escapeHtml(message)}</p>
+        <div class="message-date">${now}</div>
+      `;
       messagesDiv.prepend(messageDiv);
 
+      // Show success message
+      successMessage.style.display = 'block';
+      setTimeout(() => {
+        successMessage.style.display = 'none';
+      }, 3000);
+
       // Send to Google Sheets
-      fetch("https://script.google.com/macros/s/AKfycbxky_kGPxMGcOdujzU-tKUHGuKkNZJ7GQQK0jnjrShQxaWq61alhPDCDswOPEobZquO/exec", {
+      const scriptUrl = "https://script.google.com/macros/s/AKfycbxky_kGPxMGcOdujzU-tKUHGuKkNZJ7GQQK0jnjrShQxaWq61alhPDCDswOPEobZquO/exec";
+      
+      fetch(scriptUrl, {
         method: "POST",
-        body: JSON.stringify({ name: name, message: message })
-      }).then(res => console.log("Guestbook entry sent to Sheet"))
-        .catch(err => console.error("Error:", err));
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          name: name, 
+          message: message,
+          timestamp: new Date().toISOString()
+        })
+      }).then(() => {
+        console.log("Guestbook entry sent successfully");
+      }).catch(err => {
+        console.error("Error sending to Google Sheets:", err);
+      });
 
       form.reset();
     });
 
-    // Analytics placeholder (can be upgraded to Google Analytics later)
-    console.log("Visitor accessed memorial page at", new Date(), navigator.userAgent);
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Simple analytics
+    console.log("Memorial page viewed:", new Date().toISOString());
   </script>
 </body>
 </html>
