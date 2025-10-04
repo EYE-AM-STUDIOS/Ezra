@@ -233,12 +233,14 @@
         font-size: 26px;
       }
       .profile-image-container {
-        width: 170px;
-        height: 170px;
+        width: 140px;
+        height: 140px;
       }
-      header img {
-        width: 150px;
-        height: 150px;
+      header img,
+      .profile-image {
+        width: 120px;
+        height: 120px;
+        border-width: 3px;
       }
       .gallery-grid {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -250,15 +252,29 @@
     }
     @media(max-width: 480px) {
       .container {
-        padding: 10px;
+        padding: 6px;
+      }
+      .profile-image-container {
+        width: 90px;
+        height: 90px;
+      }
+      header img,
+      .profile-image {
+        width: 70px;
+        height: 70px;
+        border-width: 2px;
       }
       .gallery-grid {
         grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-        gap: 10px;
+        gap: 8px;
       }
       .gallery-grid img,
       .gallery-grid video {
-        height: 80px;
+        height: 60px;
+      }
+      .guestbook,
+      .gallery {
+        padding: 18px 4px;
       }
     }
   </style>
