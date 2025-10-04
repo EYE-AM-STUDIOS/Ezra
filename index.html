@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>In Loving Memory of  Ezra Jewel Courtney</title>
+  <title>In Loving Memory of Ezra Jewel Courtney</title>
   <style>
     * {
       box-sizing: border-box;
@@ -290,7 +290,7 @@
   <div class="container">
     <!-- Background Audio -->
     <audio id="backgroundAudio" loop preload="auto">
-      <source src="01 - Ezra Courtney - Amaizing Grace.mp3" type="audio/mpeg">
+      <source src="amazing-grace.mp3" type="audio/mpeg">
       Your browser does not support the audio element.
     </audio>
     
@@ -300,20 +300,25 @@
         background: rgba(0, 191, 255, 0.8);
         border: none;
         color: white;
-        padding: 10px 15px;
+        padding: 12px 16px;
         border-radius: 50%;
         cursor: pointer;
-        font-size: 16px;
+        font-size: 18px;
         box-shadow: 0 4px 15px rgba(0, 191, 255, 0.3);
         transition: all 0.3s ease;
-      " title="Toggle background music">🎵</button>
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      " title="Toggle background music">🔇</button>
     </div>
 
     <header>
       <div class="profile-image-container">
         <img src="profile.jpg" alt="Profile Image" class="profile-image">
       </div>
-      <h1>In Loving Memory of<br>Ezra Courtney</h1>
+      <h1>In Loving Memory of <br>Ezra Jewel Courtney</h1>
       <p class="dates">1978 - 2025</p>
       <p class="instructions">
         Please share your favorite photos and short videos (under 3 minutes, less than 500MB) 
@@ -365,46 +370,85 @@
     const audioToggle = document.getElementById('audioToggle');
     let isPlaying = false;
 
+    // Debug: Check if audio element exists
+    console.log('Audio element found:', audio);
+    console.log('Audio toggle button found:', audioToggle);
+
+    // Ensure button is clickable
+    if (audioToggle) {
+      audioToggle.style.pointerEvents = 'auto';
+      audioToggle.style.userSelect = 'none';
+    }
+
     // Auto-play with user interaction (modern browsers require user interaction)
     function initAudio() {
+      console.log('Attempting to initialize audio...');
+      if (!audio) {
+        console.error('Audio element not found');
+        return;
+      }
+      
       audio.volume = 0.3; // Set volume to 30% for background ambiance
       audio.play().then(() => {
+        console.log('Audio started successfully');
         isPlaying = true;
         audioToggle.textContent = '🔊';
         audioToggle.title = 'Pause background music';
-      }).catch(() => {
-        console.log('Autoplay prevented - user interaction required');
+      }).catch((error) => {
+        console.log('Autoplay prevented - user interaction required', error);
         audioToggle.textContent = '🔇';
         audioToggle.title = 'Play background music';
       });
     }
 
     // Toggle audio on button click
-    audioToggle.addEventListener('click', function() {
-      if (isPlaying) {
-        audio.pause();
-        audioToggle.textContent = '🔇';
-        audioToggle.title = 'Play background music';
-        isPlaying = false;
-      } else {
-        audio.play().then(() => {
-          audioToggle.textContent = '🔊';
-          audioToggle.title = 'Pause background music';
-          isPlaying = true;
-        }).catch(err => {
-          console.error('Audio play failed:', err);
-        });
-      }
-    });
+    if (audioToggle) {
+      audioToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Audio toggle clicked. Currently playing:', isPlaying);
+        
+        if (isPlaying) {
+          audio.pause();
+          audioToggle.textContent = '🔇';
+          audioToggle.title = 'Play background music';
+          isPlaying = false;
+          console.log('Audio paused');
+        } else {
+          audio.play().then(() => {
+            audioToggle.textContent = '🔊';
+            audioToggle.title = 'Pause background music';
+            isPlaying = true;
+            console.log('Audio started after button click');
+          }).catch(err => {
+            console.error('Audio play failed:', err);
+            alert('Audio failed to play: ' + err.message);
+          });
+        }
+      });
+    }
+
+    // Check if audio can load
+    if (audio) {
+      audio.addEventListener('loadstart', () => console.log('Audio loading started'));
+      audio.addEventListener('loadeddata', () => console.log('Audio data loaded'));
+      audio.addEventListener('error', (e) => console.error('Audio error:', e));
+      audio.addEventListener('canplaythrough', () => console.log('Audio can play through'));
+    }
 
     // Try to initialize audio when page loads
     window.addEventListener('load', () => {
-      setTimeout(initAudio, 1000); // Small delay to ensure page is ready
+      setTimeout(() => {
+        console.log('Page loaded, trying to init audio');
+        initAudio();
+      }, 1000);
     });
 
     // Also try to start audio on first user interaction
-    document.addEventListener('click', function initOnFirstClick() {
-      if (!isPlaying) {
+    document.addEventListener('click', function initOnFirstClick(e) {
+      // Don't trigger on audio button clicks
+      if (e.target.id !== 'audioToggle' && !isPlaying) {
+        console.log('First click detected, trying to start audio');
         initAudio();
       }
       document.removeEventListener('click', initOnFirstClick);
@@ -514,3 +558,6 @@
 
     // Simple analytics
     console.log("Memorial page viewed:", new Date().toISOString());
+  </script>
+</body>
+</html>
