@@ -281,12 +281,33 @@
 </head>
 <body>
   <div class="container">
+    <!-- Background Audio -->
+    <audio id="backgroundAudio" loop preload="auto">
+      <source src="01 - Ezra Courtney - Amaizing Grace.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+    
+    <!-- Audio Control Button -->
+    <div id="audioControl" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+      <button id="audioToggle" style="
+        background: rgba(0, 191, 255, 0.8);
+        border: none;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 16px;
+        box-shadow: 0 4px 15px rgba(0, 191, 255, 0.3);
+        transition: all 0.3s ease;
+      " title="Toggle background music">🎵</button>
+    </div>
+
     <header>
       <div class="profile-image-container">
         <img src="profile.jpg" alt="Profile Image" class="profile-image">
       </div>
       <h1>In Loving Memory of Ezra Courtney</h1>
-      <p class="dates">Forever in Our Hearts</p>
+      <p class="dates">1978 - 2025</p>
       <p class="instructions">
         Please share your favorite photos and short videos (under 3 minutes, less than 500MB) 
         to help us celebrate Ezra's life. 
@@ -332,6 +353,56 @@
   </div>
 
   <script>
+    // Background Audio Control
+    const audio = document.getElementById('backgroundAudio');
+    const audioToggle = document.getElementById('audioToggle');
+    let isPlaying = false;
+
+    // Auto-play with user interaction (modern browsers require user interaction)
+    function initAudio() {
+      audio.volume = 0.3; // Set volume to 30% for background ambiance
+      audio.play().then(() => {
+        isPlaying = true;
+        audioToggle.textContent = '🔊';
+        audioToggle.title = 'Pause background music';
+      }).catch(() => {
+        console.log('Autoplay prevented - user interaction required');
+        audioToggle.textContent = '🔇';
+        audioToggle.title = 'Play background music';
+      });
+    }
+
+    // Toggle audio on button click
+    audioToggle.addEventListener('click', function() {
+      if (isPlaying) {
+        audio.pause();
+        audioToggle.textContent = '🔇';
+        audioToggle.title = 'Play background music';
+        isPlaying = false;
+      } else {
+        audio.play().then(() => {
+          audioToggle.textContent = '🔊';
+          audioToggle.title = 'Pause background music';
+          isPlaying = true;
+        }).catch(err => {
+          console.error('Audio play failed:', err);
+        });
+      }
+    });
+
+    // Try to initialize audio when page loads
+    window.addEventListener('load', () => {
+      setTimeout(initAudio, 1000); // Small delay to ensure page is ready
+    });
+
+    // Also try to start audio on first user interaction
+    document.addEventListener('click', function initOnFirstClick() {
+      if (!isPlaying) {
+        initAudio();
+      }
+      document.removeEventListener('click', initOnFirstClick);
+    }, { once: true });
+
     // Direct upload to S3 via Vercel API
     document.getElementById('uploadForm').onsubmit = async function(e) {
       e.preventDefault();
