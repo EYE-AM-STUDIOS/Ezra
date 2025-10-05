@@ -619,8 +619,10 @@
     const messagesDiv = document.getElementById('messages');
     const successMessage = document.getElementById('successMessage');
 
-    // Load existing messages on page load
-    window.addEventListener('load', loadMessages);
+    // Load existing messages on page load (Excel link is now shown only on admin page)
+    window.addEventListener('load', () => {
+      loadMessages();
+    });
 
     function loadMessages() {
       // Test Google Sheets connection
@@ -708,27 +710,22 @@
         // Still show the message locally even if Google Sheets fails
       });
 
-      // Also send to Vercel Excel API
+      // Also send to Vercel Excel API (URL-encoded for reliable parsing)
+      const encodedBody = new URLSearchParams({
+        name,
+        message,
+        timestamp: new Date().toISOString()
+      });
       fetch('/api/guestbook', {
         method: 'POST',
-        body: formData
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: encodedBody
       })
       .then(async response => {
         if (response.ok) {
           const result = await response.json();
-          if (result.success && result.url) {
-            // Show Excel download link
-            let excelLink = document.getElementById('excelDownloadLink');
-            if (!excelLink) {
-              excelLink = document.createElement('div');
-              excelLink.id = 'excelDownloadLink';
-              excelLink.style.marginTop = '12px';
-              excelLink.innerHTML = `<a href="${result.url}" target="_blank" style="color:#00BFFF;text-decoration:underline;">Download Guestbook (Excel)</a>`;
-              successMessage.parentNode.insertBefore(excelLink, successMessage.nextSibling);
-            } else {
-              excelLink.innerHTML = `<a href="${result.url}" target="_blank" style="color:#00BFFF;text-decoration:underline;">Download Guestbook (Excel)</a>`;
-            }
-          }
+          console.log('Excel API result:', result);
+          // We no longer show the link on the public page.
         } else {
           console.error('Excel API error:', response.status);
         }
