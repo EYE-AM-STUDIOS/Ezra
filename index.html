@@ -510,6 +510,21 @@
     window.addEventListener('load', loadMessages);
 
     function loadMessages() {
+      // Test Google Sheets connection
+      console.log('Testing Google Sheets connection...');
+      const scriptUrl = "https://script.google.com/macros/s/AKfycbxky_kGPxMGcOdujzU-tKUHGuKkNZJ7GQQK0jnjrShQxaWq61alhPDCDswOPEobZquO/exec";
+      
+      fetch(scriptUrl + '?action=test', {
+        method: 'GET'
+      }).then(response => {
+        console.log('Google Sheets test response:', response.status);
+        return response.text();
+      }).then(data => {
+        console.log('Google Sheets test data:', data);
+      }).catch(err => {
+        console.error('Google Sheets test failed:', err);
+      });
+      
       // Messages will be loaded from Google Sheets
       // For now, showing placeholder
     }
@@ -545,28 +560,42 @@
 
       // Show success message
       successMessage.style.display = 'block';
+      successMessage.innerHTML = 'Thank you for sharing your memory ❤️<br><small>Saving to guestbook...</small>';
+      
       setTimeout(() => {
         successMessage.style.display = 'none';
-      }, 3000);
+      }, 4000); // Increased to 4 seconds
 
       // Send to Google Sheets
       const scriptUrl = "https://script.google.com/macros/s/AKfycbxky_kGPxMGcOdujzU-tKUHGuKkNZJ7GQQK0jnjrShQxaWq61alhPDCDswOPEobZquO/exec";
       
+      // Prepare the data
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('message', message);
+      formData.append('timestamp', new Date().toISOString());
+      
+      console.log('Sending to Google Sheets:', { name, message });
+      
       fetch(scriptUrl, {
         method: "POST",
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          name: name, 
-          message: message,
-          timestamp: new Date().toISOString()
-        })
-      }).then(() => {
+        body: formData
+      }).then(response => {
+        console.log("Google Sheets response status:", response.status);
+        console.log("Google Sheets response:", response);
+        if (response.ok) {
+          successMessage.innerHTML = 'Thank you for sharing your memory ❤️<br><small>Saved successfully!</small>';
+        } else {
+          successMessage.innerHTML = 'Thank you for sharing your memory ❤️<br><small>Displayed locally (save pending)</small>';
+        }
+        return response.text();
+      }).then(data => {
+        console.log("Google Sheets response data:", data);
         console.log("Guestbook entry sent successfully");
       }).catch(err => {
         console.error("Error sending to Google Sheets:", err);
+        successMessage.innerHTML = 'Thank you for sharing your memory ❤️<br><small>Displayed locally (save pending)</small>';
+        // Still show the message locally even if Google Sheets fails
       });
 
       form.reset();
