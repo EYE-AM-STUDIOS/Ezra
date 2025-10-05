@@ -708,6 +708,35 @@
         // Still show the message locally even if Google Sheets fails
       });
 
+      // Also send to Vercel Excel API
+      fetch('/api/guestbook', {
+        method: 'POST',
+        body: formData
+      })
+      .then(async response => {
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.url) {
+            // Show Excel download link
+            let excelLink = document.getElementById('excelDownloadLink');
+            if (!excelLink) {
+              excelLink = document.createElement('div');
+              excelLink.id = 'excelDownloadLink';
+              excelLink.style.marginTop = '12px';
+              excelLink.innerHTML = `<a href="${result.url}" target="_blank" style="color:#00BFFF;text-decoration:underline;">Download Guestbook (Excel)</a>`;
+              successMessage.parentNode.insertBefore(excelLink, successMessage.nextSibling);
+            } else {
+              excelLink.innerHTML = `<a href="${result.url}" target="_blank" style="color:#00BFFF;text-decoration:underline;">Download Guestbook (Excel)</a>`;
+            }
+          }
+        } else {
+          console.error('Excel API error:', response.status);
+        }
+      })
+      .catch(err => {
+        console.error('Excel API error:', err);
+      });
+
       form.reset();
     });
 
