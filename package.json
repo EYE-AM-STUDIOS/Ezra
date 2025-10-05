@@ -4,7 +4,8 @@
   "description": "Memorial website for Ezra Jewel Courtney",
   "main": "index.html",
   "dependencies": {
-    "@vercel/blob": "^0.23.4"
+    "@vercel/blob": "^0.23.4",
+    "exceljs": "^4.4.0"
   },
   "scripts": {
     "dev": "vercel dev",
