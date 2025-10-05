@@ -626,7 +626,7 @@
       // Test Google Sheets connection
       console.log('Testing Google Sheets connection...');
       const scriptUrl = "https://script.google.com/macros/s/AKfycbxky_kGPxMGcOdujzU-tKUHGuKkNZJ7GQQK0jnjrShQxaWq61alhPDCDswOPEobZquO/exec";
-      
+      // If you redeploy your Apps Script, update the above URL to your new Web App URL.
       fetch(scriptUrl + '?action=test', {
         method: 'GET'
       }).then(response => {
@@ -637,7 +637,6 @@
       }).catch(err => {
         console.error('Google Sheets test failed:', err);
       });
-      
       // Messages will be loaded from Google Sheets
       // For now, showing placeholder
     }
@@ -681,15 +680,13 @@
 
       // Send to Google Sheets
       const scriptUrl = "https://script.google.com/macros/s/AKfycbxky_kGPxMGcOdujzU-tKUHGuKkNZJ7GQQK0jnjrShQxaWq61alhPDCDswOPEobZquO/exec";
-      
+      // If you redeploy your Apps Script, update the above URL to your new Web App URL.
       // Prepare the data
       const formData = new FormData();
       formData.append('name', name);
       formData.append('message', message);
       formData.append('timestamp', new Date().toISOString());
-      
       console.log('Sending to Google Sheets:', { name, message });
-      
       fetch(scriptUrl, {
         method: "POST",
         body: formData
