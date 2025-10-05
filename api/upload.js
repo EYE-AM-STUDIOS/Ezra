@@ -1,4 +1,6 @@
-// Vercel serverless function for file uploads
+// Vercel serverless function for file uploads using Vercel Blob
+import { put } from '@vercel/blob';
+
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -67,15 +69,22 @@ export default async function handler(req, res) {
 
     console.log('File validation passed:', { filename, size: fileSize, type: contentType });
 
-    // Simulate successful upload
-    // In production, you would upload to S3, Cloudinary, or another storage service
+    // Upload to Vercel Blob
+    const blob = await put(filename, req, {
+      access: 'public',
+      addRandomSuffix: false, // Keep original filename
+    });
+
+    console.log('Blob uploaded successfully:', blob);
+
+    // Return success response
     const uploadResult = {
       success: true,
       filename: filename,
       size: fileSize,
       contentType: contentType,
-      url: `/uploads/${filename}`, // This would be the actual URL after upload
-      message: 'Upload successful (demo mode)',
+      url: blob.url, // The public URL from Vercel Blob
+      message: 'Upload successful',
       timestamp: new Date().toISOString()
     };
 
