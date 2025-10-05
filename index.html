@@ -517,7 +517,21 @@
           body: file
         });
         
-        const result = await res.json();
+        console.log('Response status:', res.status);
+        console.log('Response headers:', res.headers);
+        
+        let result;
+        const contentType = res.headers.get('content-type');
+        
+        if (contentType && contentType.includes('application/json')) {
+          result = await res.json();
+        } else {
+          // If response is not JSON, it's likely an error page
+          const text = await res.text();
+          console.error('Non-JSON response:', text);
+          throw new Error('Server returned non-JSON response. API endpoint may not be working.');
+        }
+        
         console.log('Upload response:', result);
         
         if (res.ok && result.success) {
@@ -527,7 +541,8 @@
           // Reset form
           document.getElementById('uploadForm').reset();
           
-          // TODO: Add the uploaded image/video to the gallery
+          // Add the uploaded image/video to the gallery
+          addToGallery(result.url, result.filename, result.contentType);
           console.log('File uploaded successfully:', result);
           
         } else {
@@ -541,6 +556,65 @@
         status.style.color = '#ff6b6b';
       }
     };
+
+    // Function to add uploaded files to the gallery
+    function addToGallery(url, filename, contentType) {
+      const gallery = document.getElementById('gallery');
+      
+      // Remove placeholder if it exists
+      const placeholder = gallery.querySelector('.gallery-placeholder');
+      if (placeholder) {
+        placeholder.remove();
+      }
+      
+      // Create media element
+      let mediaElement;
+      if (contentType.startsWith('image/')) {
+        mediaElement = document.createElement('img');
+        mediaElement.src = url;
+        mediaElement.alt = filename;
+      } else if (contentType.startsWith('video/')) {
+        mediaElement = document.createElement('video');
+        mediaElement.src = url;
+        mediaElement.controls = true;
+        mediaElement.preload = 'metadata';
+      }
+      
+      if (mediaElement) {
+        mediaElement.style.cssText = `
+          width: 200px;
+          height: 120px;
+          object-fit: cover;
+          border-radius: 8px;
+          border: 2px solid rgba(0, 191, 255, 0.3);
+          transition: all 0.3s ease;
+          cursor: pointer;
+          margin: 10px;
+        `;
+        
+        // Add hover effects
+        mediaElement.addEventListener('mouseenter', () => {
+          mediaElement.style.transform = 'scale(1.05)';
+          mediaElement.style.borderColor = '#00BFFF';
+          mediaElement.style.boxShadow = '0 4px 15px rgba(0, 191, 255, 0.5)';
+        });
+        
+        mediaElement.addEventListener('mouseleave', () => {
+          mediaElement.style.transform = 'scale(1)';
+          mediaElement.style.borderColor = 'rgba(0, 191, 255, 0.3)';
+          mediaElement.style.boxShadow = 'none';
+        });
+        
+        // Change gallery layout to flex wrap
+        gallery.style.display = 'flex';
+        gallery.style.flexWrap = 'wrap';
+        gallery.style.justifyContent = 'center';
+        gallery.style.gap = '10px';
+        
+        gallery.appendChild(mediaElement);
+      }
+    }
+
     const form = document.getElementById('guestbookForm');
     const messagesDiv = document.getElementById('messages');
     const successMessage = document.getElementById('successMessage');
