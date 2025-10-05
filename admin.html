@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin – Ezra Guestbook</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #0D1B2A; color: #E6F0FF; margin: 0; padding: 20px; }
+    .card { max-width: 720px; margin: 30px auto; background: rgba(26,54,93,0.6); border-radius: 12px; padding: 24px; box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
+    h1 { font-weight: 400; color: #00BFFF; margin-top: 0; }
+    .row { margin: 12px 0; }
+    input[type="password"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(0,191,255,0.3); background: rgba(13,27,42,0.6); color: #E6F0FF; }
+    button { padding: 10px 16px; background: linear-gradient(135deg,#00BFFF 0%, #0080CC 100%); border: none; color: white; border-radius: 8px; cursor: pointer; }
+    a.download { color:#00BFFF; text-decoration: underline; }
+    small { color: #8BA3C7; }
+    .hidden { display:none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Admin – Guestbook Downloads</h1>
+    <p class="row"><small>This page is not linked from the public site. Protect it with a simple password below.</small></p>
+
+    <div id="auth">
+      <div class="row">
+        <label for="pw">Password</label>
+        <input id="pw" type="password" placeholder="Enter admin password" />
+      </div>
+      <div class="row">
+        <button id="loginBtn">Unlock</button>
+      </div>
+      <p class="row"><small>Tip: change the password by editing ADMIN_PASS at the top of this page.</small></p>
+    </div>
+
+    <div id="panel" class="hidden">
+      <p class="row">Guestbook Excel file:</p>
+      <div id="status" class="row"><small>Loading...</small></div>
+      <div class="row" id="links"></div>
+    </div>
+  </div>
+
+  <script>
+    // Simple client-side password gate (for convenience). For stronger security, switch to a token-checked API.
+    const ADMIN_PASS = 'ezra-admin-guestbook'; // Change this to your own value
+
+    const auth = document.getElementById('auth');
+    const panel = document.getElementById('panel');
+    const status = document.getElementById('status');
+    const links = document.getElementById('links');
+
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const value = document.getElementById('pw').value;
+      if (value === ADMIN_PASS) {
+        auth.classList.add('hidden');
+        panel.classList.remove('hidden');
+        loadGuestbook();
+      } else {
+        alert('Incorrect password.');
+      }
+    });
+
+    function loadGuestbook() {
+      status.innerHTML = '<small>Loading...</small>';
+      fetch('/api/guestbook')
+        .then(r => r.json())
+        .then(result => {
+          if (result && result.success && result.url) {
+            status.textContent = 'Ready';
+            links.innerHTML = `<a class="download" href="${result.url}" target="_blank">Download guestbook.xlsx</a>`;
+          } else {
+            status.textContent = 'Guestbook not created yet. Submit one entry on the public page and refresh.';
+            links.innerHTML = '';
+          }
+        })
+        .catch(err => {
+          status.textContent = 'Error loading file';
+          console.error(err);
+        });
+    }
+  </script>
+</body>
+</html>
