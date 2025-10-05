@@ -1,0 +1,17 @@
+{
+  "name": "ezra-memorial",
+  "version": "1.0.0",
+  "description": "Memorial website for Ezra Jewel Courtney",
+  "main": "index.html",
+  "dependencies": {
+    "@vercel/blob": "^0.23.4"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Static site - no build needed'",
+    "start": "echo 'Static site - deployed to Vercel'"
+  },
+  "keywords": ["memorial", "website", "vercel"],
+  "author": "EYE AM STUDIOS, LLC",
+  "license": "MIT"
+}
