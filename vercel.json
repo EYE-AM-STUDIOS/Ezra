@@ -1,6 +1,10 @@
 {
+  "outputDirectory": ".",
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" }
+  ],
   "functions": {
-    "api/upload.js": {
+    "api/*": {
       "maxDuration": 30
     }
   }
