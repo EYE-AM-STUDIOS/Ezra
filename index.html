@@ -482,8 +482,31 @@
       e.preventDefault();
       const file = document.getElementById('fileInput').files[0];
       if (!file) return;
+      
       const status = document.getElementById('uploadStatus');
       status.textContent = 'Uploading...';
+      status.style.color = '#00BFFF';
+      
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'video/mp4', 'video/mov', 'video/avi'];
+      const fileType = file.type.toLowerCase();
+      
+      if (!allowedTypes.includes(fileType)) {
+        status.textContent = 'Invalid file type. Please upload images (JPEG, PNG, GIF) or videos (MP4, MOV, AVI).';
+        status.style.color = '#ff6b6b';
+        return;
+      }
+      
+      // Validate file size (500MB)
+      const maxSize = 500 * 1024 * 1024;
+      if (file.size > maxSize) {
+        status.textContent = 'File too large. Maximum size is 500MB.';
+        status.style.color = '#ff6b6b';
+        return;
+      }
+      
+      console.log('Uploading file:', { name: file.name, type: file.type, size: file.size });
+      
       try {
         const res = await fetch('/api/upload', {
           method: 'POST',
@@ -493,13 +516,29 @@
           },
           body: file
         });
-        if (res.ok) {
-          status.textContent = 'Upload successful!';
+        
+        const result = await res.json();
+        console.log('Upload response:', result);
+        
+        if (res.ok && result.success) {
+          status.textContent = 'Upload successful! ' + (result.message || '');
+          status.style.color = '#4CAF50';
+          
+          // Reset form
+          document.getElementById('uploadForm').reset();
+          
+          // TODO: Add the uploaded image/video to the gallery
+          console.log('File uploaded successfully:', result);
+          
         } else {
-          status.textContent = 'Upload failed. Please try again.';
+          status.textContent = 'Upload failed: ' + (result.error || 'Unknown error');
+          status.style.color = '#ff6b6b';
         }
+        
       } catch (err) {
+        console.error('Upload error:', err);
         status.textContent = 'Upload error: ' + err.message;
+        status.style.color = '#ff6b6b';
       }
     };
     const form = document.getElementById('guestbookForm');
