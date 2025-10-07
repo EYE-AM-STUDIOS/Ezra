@@ -1,0 +1,31 @@
+/* Shared styles for EAS Memorial */
+:root {
+  --bg: #0D1B2A;
+  --bg-soft: #1B263B;
+  --primary: #00BFFF;
+  --text: #E6F0FF;
+  --muted: #8BA3C7;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  background: linear-gradient(135deg, var(--bg) 0%, var(--bg-soft) 100%);
+  color: var(--text);
+  min-height: 100vh;
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+header { text-align: center; padding: 32px 0; }
+h1, h2, h3 { font-weight: 300; margin: 0 0 10px 0; }
+p { color: var(--text); line-height: 1.7; }
+.button {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--primary) 0%, #0080CC 100%);
+  color: white; text-decoration: none;
+  padding: 12px 20px; border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,191,255,0.25);
+}
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+.card { background: rgba(26,54,93,0.45); border-radius: 12px; padding: 18px; text-align: center; }
+img.responsive { max-width: 100%; height: auto; border-radius: 10px; }
+footer { margin-top: 40px; padding: 16px; color: var(--muted); text-align: center; border-top: 1px solid rgba(139,163,199,0.2); }

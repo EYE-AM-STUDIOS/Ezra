@@ -296,7 +296,7 @@
     
     <!-- Audio Control Button -->
     <div id="audioControl" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
-      <button id="audioToggle" style="
+      <button id="audioToggle" aria-label="Play background music" aria-pressed="false" style="
         background: rgba(0, 191, 255, 0.8);
         border: none;
         color: white;
@@ -326,9 +326,9 @@
       </p>
     </header>
 
-    <!-- Direct upload to S3 via Vercel API -->
+    <!-- Direct upload to Vercel Blob via API -->
     <form id="uploadForm" enctype="multipart/form-data" style="margin: 30px auto; max-width: 400px;">
-      <input type="file" id="fileInput" required style="margin-bottom: 10px;">
+      <input type="file" id="fileInput" accept="image/*,video/*" required style="margin-bottom: 10px;">
       <button type="submit" style="padding: 12px 30px; background: linear-gradient(135deg, #00BFFF 0%, #0080CC 100%); border: none; border-radius: 8px; color: #fff; font-size: 16px; cursor: pointer;">Upload a Memory</button>
     </form>
     <div id="uploadStatus" style="margin-top:10px; color:#00BFFF;"></div>
@@ -350,6 +350,8 @@
       <form id="guestbookForm">
         <input type="text" id="name" placeholder="Your Name" required>
         <textarea id="message" placeholder="Share a memory, thought, or message..." rows="5" required></textarea>
+        <!-- Honeypot field to discourage bots (hidden) -->
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" style="position:absolute; left:-9999px; opacity:0;" aria-hidden="true">
         <button type="submit">Submit Message</button>
       </form>
 
@@ -402,10 +404,14 @@
         isPlaying = true;
         audioToggle.textContent = '🔊';
         audioToggle.title = 'Pause background music';
+        audioToggle.setAttribute('aria-label', 'Pause background music');
+        audioToggle.setAttribute('aria-pressed', 'true');
       }).catch((error) => {
         console.log('Autoplay prevented - user interaction required', error);
         audioToggle.textContent = '🔇';
         audioToggle.title = 'Play background music';
+        audioToggle.setAttribute('aria-label', 'Play background music');
+        audioToggle.setAttribute('aria-pressed', 'false');
       });
     }
 
@@ -477,7 +483,7 @@
       document.removeEventListener('click', initOnFirstClick);
     }, { once: true });
 
-    // Direct upload to S3 via Vercel API
+    // Direct upload to Vercel Blob using a one-time upload URL
     document.getElementById('uploadForm').onsubmit = async function(e) {
       e.preventDefault();
       const file = document.getElementById('fileInput').files[0];
@@ -487,9 +493,9 @@
       status.textContent = 'Uploading...';
       status.style.color = '#00BFFF';
       
-      // Validate file type
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'video/mp4', 'video/mov', 'video/avi'];
-      const fileType = file.type.toLowerCase();
+  // Validate file type (expanded)
+  const allowedTypes = ['image/jpeg','image/jpg','image/png','image/gif','image/webp','image/heic','video/mp4','video/mov','video/avi','video/quicktime','video/x-msvideo','video/webm'];
+  const fileType = (file.type || '').toLowerCase();
       
       if (!allowedTypes.includes(fileType)) {
         status.textContent = 'Invalid file type. Please upload images (JPEG, PNG, GIF) or videos (MP4, MOV, AVI).';
@@ -508,48 +514,28 @@
       console.log('Uploading file:', { name: file.name, type: file.type, size: file.size });
       
       try {
-        const res = await fetch('/api/upload', {
+        // Step 1: request a direct upload URL from the API
+        const metaRes = await fetch('/api/upload', {
           method: 'POST',
-          headers: {
-            'x-filename': encodeURIComponent(file.name),
-            'content-type': file.type
-          },
-          body: file
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: file.name, contentType: file.type, size: file.size })
         });
-        
-        console.log('Response status:', res.status);
-        console.log('Response headers:', res.headers);
-        
-        let result;
-        const contentType = res.headers.get('content-type');
-        
-        if (contentType && contentType.includes('application/json')) {
-          result = await res.json();
-        } else {
-          // If response is not JSON, it's likely an error page
-          const text = await res.text();
-          console.error('Non-JSON response:', text);
-          throw new Error('Server returned non-JSON response. API endpoint may not be working.');
+        const meta = await metaRes.json();
+        if (!metaRes.ok || !meta.success || !meta.uploadUrl) {
+          throw new Error(meta.error || 'Failed to get upload URL');
         }
-        
-        console.log('Upload response:', result);
-        
-        if (res.ok && result.success) {
-          status.textContent = 'Upload successful! ' + (result.message || '');
-          status.style.color = '#4CAF50';
-          
-          // Reset form
-          document.getElementById('uploadForm').reset();
-          
-          // Add the uploaded image/video to the gallery
-          addToGallery(result.url, result.filename, result.contentType);
-          console.log('File uploaded successfully:', result);
-          
-        } else {
-          status.textContent = 'Upload failed: ' + (result.error || 'Unknown error');
-          status.style.color = '#ff6b6b';
+
+        // Step 2: upload the file directly to Blob storage
+        const putRes = await fetch(meta.uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
+        if (!putRes.ok) {
+          const t = await putRes.text();
+          throw new Error('Direct upload failed: ' + t);
         }
-        
+
+        status.textContent = 'Upload successful!';
+        status.style.color = '#4CAF50';
+        document.getElementById('uploadForm').reset();
+        addToGallery(meta.url, file.name, file.type || 'application/octet-stream');
       } catch (err) {
         console.error('Upload error:', err);
         status.textContent = 'Upload error: ' + err.message;
@@ -619,36 +605,65 @@
     const messagesDiv = document.getElementById('messages');
     const successMessage = document.getElementById('successMessage');
 
-    // Load existing messages on page load (Excel link is now shown only on admin page)
+    // Load existing messages and media on page load
     window.addEventListener('load', () => {
       loadMessages();
+      loadExistingMedia();
     });
 
-    function loadMessages() {
-      // Test Google Sheets connection
-      console.log('Testing Google Sheets connection...');
-      const scriptUrl = "https://script.google.com/macros/s/AKfycbxky_kGPxMGcOdujzU-tKUHGuKkNZJ7GQQK0jnjrShQxaWq61alhPDCDswOPEobZquO/exec";
-      // If you redeploy your Apps Script, update the above URL to your new Web App URL.
-      fetch(scriptUrl + '?action=test', {
-        method: 'GET'
-      }).then(response => {
-        console.log('Google Sheets test response:', response.status);
-        return response.text();
-      }).then(data => {
-        console.log('Google Sheets test data:', data);
-      }).catch(err => {
-        console.error('Google Sheets test failed:', err);
-      });
-      // Messages will be loaded from Google Sheets
-      // For now, showing placeholder
+    async function loadMessages() {
+      try {
+        const res = await fetch('/api/guestbook');
+        const data = await res.json();
+        if (res.ok && data.success && Array.isArray(data.entries)) {
+          const noMessages = messagesDiv.querySelector('.no-messages');
+          if (noMessages) noMessages.remove();
+          data.entries.reverse().forEach(({ name, message, timestamp }) => {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message');
+            const dateStr = new Date(timestamp).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            msgDiv.innerHTML = `
+              <strong>${escapeHtml(name || 'Anonymous')}</strong>
+              <p>${escapeHtml(message || '')}</p>
+              <div class="message-date">${dateStr}</div>
+            `;
+            messagesDiv.appendChild(msgDiv);
+          });
+        }
+      } catch (e) {
+        console.error('Failed to load guestbook entries:', e);
+      }
+    }
+
+    async function loadExistingMedia() {
+      try {
+        const res = await fetch('/api/list-media');
+        const data = await res.json();
+        if (res.ok && data.success && Array.isArray(data.media)) {
+          data.media.forEach(item => {
+            const lower = (item.name || '').toLowerCase();
+            let ct = 'application/octet-stream';
+            if (/\.(jpg|jpeg|png|gif|webp|heic)$/.test(lower)) ct = 'image/jpeg';
+            if (/\.(mp4|mov|avi|webm)$/.test(lower)) ct = 'video/mp4';
+            addToGallery(item.url, item.name, ct);
+          });
+        }
+      } catch (e) {
+        console.error('Failed to load existing media:', e);
+      }
     }
 
     form.addEventListener('submit', function(e) {
       e.preventDefault();
       const name = document.getElementById('name').value.trim();
       const message = document.getElementById('message').value.trim();
+      const website = (document.getElementById('website')?.value || '').trim();
 
       if (!name || !message) return;
+      if (website) { // Honeypot filled -> silently ignore to deter bots
+        form.reset();
+        return;
+      }
 
       // Remove "no messages" placeholder if it exists
       const noMessages = messagesDiv.querySelector('.no-messages');
@@ -714,7 +729,8 @@
       const encodedBody = new URLSearchParams({
         name,
         message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        website: ''
       });
       fetch('/api/guestbook', {
         method: 'POST',

@@ -2,7 +2,9 @@
   "outputDirectory": ".",
   "rewrites": [
     { "source": "/", "destination": "/index.html" },
-    { "source": "/admin", "destination": "/admin.html" }
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/eas-memorial", "destination": "/eas-memorial/index.html" },
+    { "source": "/eas-memorial/ezra", "destination": "/eas-memorial/ezra/index.html" }
   ],
   "functions": {
     "api/*": {

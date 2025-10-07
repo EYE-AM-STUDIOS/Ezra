@@ -17,9 +17,31 @@ export default async function handler(req, res) {
       const { blobs } = await list();
       const found = blobs.find(b => b.pathname === 'guestbook.xlsx');
       if (found && found.url) {
-        res.status(200).json({ success: true, url: found.url, filename: 'guestbook.xlsx' });
+        const response = await fetch(found.url);
+        if (!response.ok) {
+          res.status(200).json({ success: true, entries: [], url: found.url, filename: 'guestbook.xlsx' });
+          return;
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(Buffer.from(arrayBuffer));
+        const sheet = workbook.worksheets[0];
+        const entries = [];
+        if (sheet) {
+          const rows = sheet.getSheetValues();
+          // rows[1] is header; start from 2
+          for (let i = 2; i < rows.length; i++) {
+            const r = rows[i];
+            if (!r) continue;
+            const timestamp = r[1];
+            const name = r[2];
+            const message = r[3];
+            if (name || message) entries.push({ timestamp, name, message });
+          }
+        }
+        res.status(200).json({ success: true, entries, url: found.url, filename: 'guestbook.xlsx' });
       } else {
-        res.status(404).json({ success: false, error: 'Guestbook not found yet' });
+        res.status(200).json({ success: true, entries: [] });
       }
     } catch (error) {
       res.status(500).json({ success: false, error: error.message });
@@ -33,13 +55,24 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Basic spam protection: honeypot and lightweight rate limit per IP
+    const ip = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').toString();
+    const now = Date.now();
+    globalThis.__guestRate = globalThis.__guestRate || new Map();
+    const last = globalThis.__guestRate.get(ip) || 0;
+    if (now - last < 5000) { // 5s min interval
+      res.status(429).json({ success: false, error: 'Too many requests. Please wait a few seconds and try again.' });
+      return;
+    }
+    globalThis.__guestRate.set(ip, now);
     // Parse body: support both URL-encoded and multipart/form-data
     const chunks = [];
     for await (const chunk of req) chunks.push(chunk);
     const buffer = Buffer.concat(chunks);
 
-    let name = '';
-    let message = '';
+  let name = '';
+  let message = '';
+  let honeypot = '';
     let timestamp = new Date().toISOString();
 
     const contentType = req.headers['content-type'] || '';
@@ -47,6 +80,7 @@ export default async function handler(req, res) {
       const params = new URLSearchParams(buffer.toString());
       name = params.get('name') || '';
       message = params.get('message') || '';
+      honeypot = params.get('website') || '';
       timestamp = params.get('timestamp') || timestamp;
     } else {
       // Very simple multipart parser good enough for small text fields
@@ -58,8 +92,14 @@ export default async function handler(req, res) {
       };
       name = extract('name');
       message = extract('message');
+      honeypot = extract('website');
       const ts = extract('timestamp');
       if (ts) timestamp = ts;
+    }
+
+    if (honeypot) {
+      res.status(200).json({ success: true, message: 'Thanks!' });
+      return;
     }
 
     // Download or create Excel file
